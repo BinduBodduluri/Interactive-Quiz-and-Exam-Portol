@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Talented Quizzes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #6efbc3, #8777e3);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; padding: 20px;
+    }
+    #auth-container {
+      background-color: rgba(255, 255, 255, 0.267); border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      padding: 40px; width: 100%; max-width: 450px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    #auth-container::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 100%; height: 5px;
+      background: linear-gradient(to right, #6e8efb, #a777e3);
+    }
+    .logo h1 {
+      font-size: 32px;
+      background: linear-gradient(to right, #6e8efb, #77e3c8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .logo p { color: #777777; font-size: 16px; margin-bottom: 25px; }
+    .input-group { position: relative; margin-bottom: 25px; }
+    .input-group i {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: #c677e3;
+    }
+    input {
+      width: 100%; padding: 15px 15px 15px 45px;
+      border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    input:focus {
+      border-color: #fb6e94; outline: none;
+      box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.2);
+    }
+    button {
+      background: linear-gradient(to right, #6e8efb, #a777e3);
+      color: white; border: none; padding: 15px 30px;
+      border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; width: 100%; transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
+    }
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(110, 142, 251, 0.6);
+    }
+    .toggle-link { margin-top: 20px; color: #6e8efb; cursor: pointer; font-weight: 600; }
+    #login-error, #signup-error, #signup-success {
+      margin-top: 15px; font-weight: 500; display: none;
+    }
+    #login-error { color: #ff4757; }
+    #signup-error { color: #474aff; }
+    #signup-success { color: #28a792; }
+
+/* Navigation Buttons */
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* Previous & Next Buttons */
+#prevBtn,
+#nextBtn,
+#submitBtn,
+#reattemptBtn {
+    width: 130px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/* Previous Button */
+#prevBtn {
+    background-color: #21f391;
+    color: white;
+}
+
+/* Next Button */
+#nextBtn {
+    background-color: #4caf50;
+    color: white;
+    margin-left: auto; /* Pushes Next to the right */
+}
+
+/* Submit Button */
+#submitBtn {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Reattempt Button */
+#reattemptBtn {
+    background-color: #9c27b0;
+    color: white;
+}
+
+/* Next Level Button */
+#nextLevelBtn {
+    width: auto;
+    background-color: #ff9800;
+    color: white;
+    padding: 12px 26px;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+/* Hover Effect */
+#prevBtn:hover,
+#nextBtn:hover,
+#submitBtn:hover,
+#reattemptBtn:hover,
+#nextLevelBtn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+    /* QUIZ STYLES */
+    .quiz-container {
+      background: radial-gradient(circle at top left,#ff6ec4,#7873f5,#4ade80,#facc15,#f97316,#ef4444,#ec4899);
+      padding: 30px; border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 600px; max-width: 90%; display: none;
+    }
+    h1 { text-align: center; color: #333; margin-bottom: 15px; }
+    .timer { text-align: right; font-weight: bold; font-size: 1.1em; color: #f44336; margin-bottom: 10px; }
+    .question { font-size: 1.2em; margin-bottom: 15px; }
+    .options button {
+      display: block; width: 100%; margin: 8px 0; padding: 10px;
+      background-color: #f0f0f0; border: 1px solid #ccc;
+      border-radius: 5px; cursor: pointer; font-size: 1em;
+    }
+    .options button:hover { background-color: #e0e0e0; }
+    .change-answer-hint {
+      font-size: 0.85em; color: #555; margin-top: 6px; font-style: italic;
+    }
+    #feedback { font-weight: bold; margin-top: 10px; height: 25px; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: 15px; }
+    #prevBtn, #nextBtn, #submitBtn, #reattemptBtn {
+      background-color: #4caf50; color: white; border: none;
+      padding: 10px 20px; font-size: 1em; border-radius: 5px;
+    }
+    #prevBtn { background-color: #2196f3; }
+    #submitBtn { background-color: #f44336; }
+    #reattemptBtn { background-color: #9c27b0; margin-top: 15px; }
+    #result { text-align: center; font-size: 1.4em; }
+    #result-actions { text-align: center; margin-top: 10px; }
+    #quiz-selection, #level-selection { text-align: center; }
+    #quiz-selection button, #level-selection button {
+      margin: 10px; padding: 10px 20px; font-size: 1em; border: none;
+      background-color: #2196f3; color: white; border-radius: 5px;
+    }
+    #quiz-selection button:hover, #level-selection button:hover { background-color: #1976d2; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN & SIGNUP WRAPPER -->
+  <div id="auth-container">
+    <div class="logo">
+      <h1>Talented Quizzes</h1>
+      <p>Test your knowledge. Expand your skills.</p>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="login-username" placeholder="Enter your name" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="login-password" placeholder="Enter password" required />
+      </div>
+      <button onclick="login()">Sign In</button>
+      <p id="login-error"><i class="fas fa-exclamation-circle"></i> Invalid credentials. Try again!</p>
+      <p class="toggle-link" onclick="toggleForms('signup')">Don't have an account? Sign Up</p>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signup-form" style="display:none;">
+      <div class="input-group">
+        <i class="fas fa-user-plus"></i>
+        <input type="text" id="signup-username" placeholder="Create username" required />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="signup-password" placeholder="Create password" required />
+      </div>
+      <button onclick="signup()">Sign Up</button>
+      <p id="signup-error"><i class="fas fa-exclamation-circle"></i> Username already exists!</p>
+      <p id="signup-success"><i class="fas fa-check-circle"></i> Signup successful! Please log in.</p>
+      <p class="toggle-link" onclick="toggleForms('login')">Already have an account? Login</p>
+    </div>
+  </div>
+
+  <!-- QUIZ CONTAINER -->
+  <div class="quiz-container">
+    <h1>Talented Quizzes</h1>
+    <div id="quiz-selection">
+      <p>Select a Subject:</p>
+      <button onclick="selectMainQuiz('python')">Python</button>
+      <button onclick="selectMainQuiz('java')">Java</button>
+      <button onclick="selectMainQuiz('dbms')">DBMS</button>
+    </div>
+    <div id="level-selection" style="display:none;">
+      <p>Select Difficulty Level:</p>
+      <button onclick="startQuiz('basic')">Basic</button>
+      <button onclick="startQuiz('easy')">Easy</button>
+      <button onclick="startQuiz('moderate')">Moderate</button>
+      <button onclick="startQuiz('hard')">Hard</button>
+      <button onclick="startQuiz('high')">High Level</button>
+      <button onclick="startQuiz('advanced')">Advanced</button>
+    </div>
+    <div id="quiz" style="display:none;">
+      <div class="timer" id="timer">Time Left: 00:00</div>
+      <div id="question-container">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <div id="feedback"></div>
+        <p class="change-answer-hint">You can click a different option anytime to change your answer. Results are shown only after you submit.</p>
+        <div class="nav-buttons">
+          <button id="prevBtn">Previous</button>
+          <button id="nextBtn">Next</button>
+          <button id="submitBtn" style="display:none;">Submit</button>
+        </div>
+      </div>
+      <div id="result" style="display:none;"></div>
+      <div id="result-actions">
+        <button id="reattemptBtn" style="display:none;" onclick="reattemptQuiz()">Reattempt Quiz</button>
+        <button id="nextLevelBtn" style="display:none;" onclick="goToNextLevel()">Next Level ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== LOGIN & SIGNUP ==========
+
+    function toggleForms(show) {
+      if (show === 'signup') {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('signup-form').style.display = 'block';
+      } else {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('signup-form').style.display = 'none';
+      }
+    }
+
+    function signup() {
+      const username = document.getElementById("signup-username").value.trim();
+      const password = document.getElementById("signup-password").value.trim();
+      const users = JSON.parse(localStorage.getItem("users")) || {};
+      const errorEl = document.getElementById("signup-error");
+      const successEl = document.getElementById("signup-success");
+
+      if (!username || !password) return alert("Please fill all fields!");
+      if (users[username]) {
+        errorEl.style.display = "block";
+        successEl.style.display = "none";
+        return;
+      }
+
+      users[username] = password;
+      localStorage.setItem("users", JSON.stringify(users));
+      errorEl.style.display = "none";
+      successEl.style.display = "block";
+      document.getElementById("signup-username").value = "";
+      document.getElementById("signup-password").value = "";
+    }
+
+    function login() {
+      const username = document.getElementById("login-username").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      const users = JSON.parse(localStorage.getItem("users")) || {};
+      const errorEl = document.getElementById("login-error");
+
+      if (users[username] && users[username] === password) {
+        document.getElementById("auth-container").style.display = "none";
+        document.querySelector(".quiz-container").style.display = "block";
+        errorEl.style.display = "none";
+      } else {
+        errorEl.style.display = "block";
+      }
+    }
+
+    // ========== QUIZ SYSTEM ==========
+    const quizzes = {
+  python: {
+    basic: [
+      {text:"Python was created by?",options:["Guido van Rossum","James Gosling","Dennis Ritchie","Bjarne Stroustrup"],correctIndex:0},
+      {text:"Which symbol is used for comments?",options:["//","/* */","#","--"],correctIndex:2},
+      {text:"Which keyword defines a function?",options:["func","def","define","lambda"],correctIndex:1},
+      {text:"Which collection is ordered and mutable?",options:["Tuple","Set","List","Dictionary"],correctIndex:2},
+      {text:"What does len('Python') return?",options:["5","6","7","Error"],correctIndex:1},
+      {text:"Which data type is immutable?",options:["List","Tuple","Dictionary","Set"],correctIndex:1},
+      {text:"How to get user input?",options:["input()","get()","read()","scan()"],correctIndex:0},
+      {text:"Which operator is used for exponent?",options:["^","**","exp","pow"],correctIndex:1},
+      {text:"Which function gives variable type?",options:["type()","typeof()","id()","var()"],correctIndex:0},
+      {text:"Which is used for loops?",options:["repeat","loop","for","iterate"],correctIndex:2}
+    ],
+    easy: [
+      {text:"Which of these is a Python data type?",options:["String","Integer","List","All of the above"],correctIndex:3},
+      {text:"Python files have extension?",options:[".py",".java",".c",".cpp"],correctIndex:0},
+      {text:"Which keyword is used for conditional statements?",options:["if","for","while","switch"],correctIndex:0},
+      {text:"Which method adds an element to a list?",options:["append()","add()","insert()","push()"],correctIndex:0},
+      {text:"Python is?",options:["Compiled","Interpreted","Both","None"],correctIndex:1},
+      {text:"What is the output of 2**3?",options:["6","8","9","Error"],correctIndex:1},
+      {text:"Which function converts to string?",options:["toString()","string()","str()","text()"],correctIndex:2},
+      {text:"Which keyword is used to start a loop?",options:["loop","while","repeat","for"],correctIndex:3},
+      {text:"Which function is used to get length of list?",options:["size()","length()","count()","len()"],correctIndex:3},
+      {text:"Python supports dynamic typing?",options:["Yes","No","Partially","None"],correctIndex:0}
+    ],
+    moderate: [
+      {text:"Which module is used to generate random numbers?",options:["random","math","os","sys"],correctIndex:0},
+      {text:"What is Python's garbage collection mechanism?",options:["Reference counting","Manual","Both","None"],correctIndex:2},
+      {text:"Which function converts string to integer?",options:["int()","str()","float()","parse()"],correctIndex:0},
+      {text:"Which operator is used for floor division?",options:["/","//","%",""],correctIndex:1},
+      {text:"Which keyword creates an anonymous function?",options:["lambda","def","func","anonymous"],correctIndex:0},
+      {text:"Which function returns absolute value?",options:["abs()","fabs()","absolute()","None"],correctIndex:0},
+      {text:"Which library is used for numerical computation?",options:["numpy","math","decimal","os"],correctIndex:0},
+      {text:"How to import a module?",options:["import","include","require","use"],correctIndex:0},
+      {text:"Which data type is used for mapping?",options:["List","Tuple","Dictionary","Set"],correctIndex:2},
+      {text:"Which function gives memory address?",options:["id()","loc()","mem()","addr()"],correctIndex:0}
+    ],
+    hard: [
+      {text:"Which method returns an iterator from a list?",options:["iter()","next()","enumerate()","list()"],correctIndex:0},
+      {text:"Python supports multiple inheritance?",options:["Yes","No","Only via mixins","Depends on version"],correctIndex:0},
+      {text:"Decorators are used to?",options:["Modify functions","Iterate lists","Handle exceptions","Create classes"],correctIndex:0},
+      {text:"Which module handles dates?",options:["datetime","calendar","time","All of the above"],correctIndex:3},
+      {text:"PEP 8 refers to?",options:["Python Style Guide","Error Codes","Standard Library","Package Index"],correctIndex:0},
+      {text:"Which keyword is used to handle exceptions?",options:["try","catch","throw","error"],correctIndex:0},
+      {text:"What is the output of bool(0)?",options:["True","False","None","Error"],correctIndex:1},
+      {text:"Which function creates an iterator?",options:["iter()","next()","iterator()","loop()"],correctIndex:0},
+      {text:"Which built-in can sort lists?",options:["sort()","order()","arrange()","None"],correctIndex:0},
+      {text:"Which keyword deletes a variable?",options:["del","delete","remove","clear"],correctIndex:0}
+    ],
+    high: [
+      {text:"What does GIL stand for in Python?",options:["Global Interpreter Lock","General Internal Language","Global Interface Loop","Graphical Integration Layer"],correctIndex:0},
+      {text:"Python's with statement is used for?",options:["Context management","Looping","Exception handling","Importing modules"],correctIndex:0},
+      {text:"Which function is used to evaluate expressions?",options:["eval()","exec()","execfile()","expression()"],correctIndex:0},
+      {text:"Which method is used to handle JSON?",options:["json.load()","json.parse()","json.convert()","json.read()"],correctIndex:0},
+      {text:"Which keyword indicates a generator function?",options:["yield","return","generate","func"],correctIndex:0},
+      {text:"Which library is used for data analysis?",options:["pandas","matplotlib","numpy","tkinter"],correctIndex:0},
+      {text:"Which module handles file paths?",options:["os.path","sys","file","pathlib"],correctIndex:3},
+      {text:"Which module handles HTTP requests?",options:["requests","urllib","http","socket"],correctIndex:0},
+      {text:"Which operator checks identity?",options:["is","==","===","equals"],correctIndex:0},
+      {text:"Which function compiles code?",options:["compile()","exec()","eval()","build()"],correctIndex:0}
+    ],
+    advanced: [
+      {text:"Python's metaclasses are used for?",options:["Class creation","Memory management","File I/O","Networking"],correctIndex:0},
+      {text:"What is the output of list(set([1,1,2,2,3]))?",options:["[1,2,3]","[3,2,1]","[1,1,2,2,3]","Error"],correctIndex:0},
+      {text:"Which module supports asynchronous programming?",options:["asyncio","threading","multiprocessing","queue"],correctIndex:0},
+      {text:"Descriptors are objects that?",options:["Manage attributes","Handle errors","Control loops","Log events"],correctIndex:0},
+      {text:"Python's slots is used to?",options:["Save memory","Optimize loops","Debug code","Create modules"],correctIndex:0},
+      {text:"Which module supports multiprocessing?",options:["multiprocessing","asyncio","threading","queue"],correctIndex:0},
+      {text:"What does repr() do?",options:["Returns printable representation","Reverse string","Replace characters","None"],correctIndex:0},
+      {text:"What is monkey patching?",options:["Dynamic modification of code","Error handling","Threading","Looping"],correctIndex:0},
+      {text:"Which module is used for regex?",options:["re","regex","pattern","match"],correctIndex:0},
+      {text:"Which method defines class representation?",options:["str","repr","format","desc"],correctIndex:1}
+    ]
+  },
+
+  java: {
+    basic: [
+      {text:"Java was developed by?",options:["Guido van Rossum","James Gosling","Dennis Ritchie","Bjarne Stroustrup"],correctIndex:1},
+      {text:"Which keyword is used to inherit a class?",options:["extends","implements","inherits","super"],correctIndex:0},
+      {text:"Which method is entry point of Java?",options:["main()","start()","init()","run()"],correctIndex:0},
+      {text:"Which type stores decimals?",options:["int","float","double","char"],correctIndex:2},
+      {text:"Which keyword is for interfaces?",options:["interface","implements","class","abstract"],correctIndex:0},
+      {text:"Which operator compares values?",options:["==","=","===","<>"],correctIndex:0},
+      {text:"Which keyword for inheritance?",options:["extends","super","inherit","parent"],correctIndex:0},
+      {text:"Which loop always runs at least once?",options:["do-while","for","while","foreach"],correctIndex:0},
+      {text:"Which statement ends a loop?",options:["break","stop","return","exit"],correctIndex:0},
+      {text:"Which type stores characters?",options:["char","string","text","byte"],correctIndex:0}
+    ],
+    easy: [
+      {text:"Java is?",options:["Compiled","Interpreted","Both","None"],correctIndex:2},
+      {text:"Default value of boolean?",options:["true","false","0","null"],correctIndex:1},
+      {text:"Keyword for constants?",options:["final","static","const","immutable"],correctIndex:0},
+      {text:"Package containing Scanner?",options:["java.util","java.io","java.lang","java.net"],correctIndex:0},
+      {text:"Size of int in Java?",options:["2 bytes","4 bytes","8 bytes","Depends"],correctIndex:1},
+      {text:"Keyword to create object?",options:["new","create","make","construct"],correctIndex:0},
+      {text:"Parent class of all classes?",options:["Object","Base","Super","None"],correctIndex:0},
+      {text:"Which collection allows duplicates?",options:["List","Set","Map","None"],correctIndex:0},
+      {text:"Which keyword handles exception?",options:["try","catch","throw","error"],correctIndex:0},
+      {text:"Which method stops a thread?",options:["stop()","exit()","terminate()","close()"],correctIndex:0}
+    ],
+    moderate: [
+      {text:"Which collection is unordered?",options:["ArrayList","HashSet","LinkedList","Vector"],correctIndex:1},
+      {text:"Which method for thread sleep?",options:["sleep()","wait()","pause()","halt()"],correctIndex:0},
+      {text:"Which package for I/O?",options:["java.io","java.net","java.util","java.sql"],correctIndex:0},
+      {text:"Which keyword prevents inheritance?",options:["final","static","abstract","private"],correctIndex:0},
+      {text:"Which loop iterates collections?",options:["for-each","while","do","loop"],correctIndex:0},
+      {text:"What is JVM?",options:["Java Virtual Machine","Java Visual Model","Just Virtual Manager","None"],correctIndex:0},
+      {text:"Which keyword for polymorphism?",options:["extends","implements","Both","None"],correctIndex:2},
+      {text:"Which operator for logical AND?",options:["&&","||","&","and"],correctIndex:0},
+      {text:"Which keyword for abstraction?",options:["abstract","interface","final","super"],correctIndex:0},
+      {text:"Which method is called by garbage collector?",options:["finalize()","delete()","dispose()","None"],correctIndex:0}
+    ],
+    hard: [
+      {text:"Which exception is checked?",options:["IOException","ArithmeticException","NullPointerException","RuntimeException"],correctIndex:0},
+      {text:"Which keyword for thread start?",options:["start()","run()","execute()","begin()"],correctIndex:0},
+      {text:"Which class handles files?",options:["File","Files","IO","Document"],correctIndex:0},
+      {text:"Which modifier allows access within package?",options:["default","public","private","protected"],correctIndex:0},
+      {text:"Which class is synchronized?",options:["Vector","ArrayList","HashMap","HashSet"],correctIndex:0},
+      {text:"Which stream reads bytes?",options:["InputStream","Reader","Scanner","BufferedReader"],correctIndex:0},
+      {text:"Which feature allows same method name?",options:["Overloading","Overriding","Both","None"],correctIndex:0},
+      {text:"Which method for string comparison?",options:["equals()","==","compare()","isEqual()"],correctIndex:0},
+      {text:"Which class handles exceptions?",options:["Exception","Error","Throwable","RuntimeException"],correctIndex:2},
+      {text:"Which keyword for interface implementation?",options:["implements","extends","inherits","uses"],correctIndex:0}
+    ],
+    high: [
+      {text:"Which Java feature supports polymorphism?",options:["Method Overloading","Inheritance","Both","None"],correctIndex:2},
+      {text:"Keyword prevents method overriding?",options:["final","static","abstract","private"],correctIndex:0},
+      {text:"JRE stands for?",options:["Java Runtime Environment","Java Read Engine","Java Remote Extension","None"],correctIndex:0},
+      {text:"Which interface for collections?",options:["Collection","List","Set","Map"],correctIndex:0},
+      {text:"Which keyword for inner class?",options:["class","inner","subclass","static"],correctIndex:0},
+      {text:"Java API stands for?",options:["Application Programming Interface","Abstract Program Interface","Advanced Process Interface","None"],correctIndex:0},
+      {text:"Which class for mathematical ops?",options:["Math","Calculator","Compute","Numeric"],correctIndex:0},
+      {text:"Which class for dates?",options:["Date","Time","Calendar","Timestamp"],correctIndex:2},
+      {text:"Which interface defines compareTo?",options:["Comparable","Comparator","Compare","Sort"],correctIndex:0},
+      {text:"Which stream writes bytes?",options:["OutputStream","Writer","FileOutput","DataOutput"],correctIndex:0}
+    ],
+    advanced: [
+      {text:"Java Memory Model handles?",options:["Concurrency","Garbage Collection","Both","None"],correctIndex:2},
+      {text:"Feature allows dynamic proxy?",options:["Reflection","Interface","Annotation","Generic"],correctIndex:0},
+      {text:"Which keyword for synchronization?",options:["synchronized","sync","threadsafe","parallel"],correctIndex:0},
+      {text:"Which collection is thread-safe?",options:["Vector","ArrayList","HashSet","LinkedList"],correctIndex:0},
+      {text:"What is serialization?",options:["Saving object state","Sorting data","Compiling code","Debugging"],correctIndex:0},
+      {text:"Which interface for threads?",options:["Runnable","Thread","Executor","Process"],correctIndex:0},
+      {text:"Which annotation prevents warnings?",options:["@SuppressWarnings","@NoWarning","@Avoid","@Ignore"],correctIndex:0},
+      {text:"Which type handles generics?",options:["Type Parameter","Wildcards","Both","None"],correctIndex:2},
+      {text:"Which package handles networking?",options:["java.net","java.io","java.nio","java.rmi"],correctIndex:0},
+      {text:"Which keyword prevents subclassing?",options:["final","static","abstract","super"],correctIndex:0}
+    ]
+  },
+
+  dbms: {
+    basic: [
+      {text:"DBMS stands for?",options:["Database Management System","Data Binary Management System","Database Manual System","Data Backup Management System"],correctIndex:0},
+      {text:"Which of the following is a type of DBMS?",options:["Hierarchical","Network","Relational","All of the above"],correctIndex:3},
+      {text:"Primary key must be?",options:["Unique","Non-unique","Null allowed","Duplicate allowed"],correctIndex:0},
+      {text:"Which SQL command retrieves data?",options:["SELECT","INSERT","UPDATE","DELETE"],correctIndex:0},
+      {text:"Which normal form removes repeating groups?",options:["1NF","2NF","3NF","BCNF"],correctIndex:0},
+      {text:"Foreign key maintains?",options:["Referential integrity","Entity integrity","Domain integrity","None"],correctIndex:0},
+      {text:"Which key uniquely identifies record?",options:["Primary key","Foreign key","Candidate key","Composite key"],correctIndex:0},
+      {text:"DBMS reduces?",options:["Data redundancy","Data integrity","Both","None"],correctIndex:2},
+      {text:"Which command removes rows?",options:["DELETE","DROP","REMOVE","CLEAR"],correctIndex:0},
+      {text:"SQL stands for?",options:["Structured Query Language","Simple Query Language","Standard Query Link","Structured Question Language"],correctIndex:0}
+    ],
+    easy: [
+      {text:"Foreign key is used to?",options:["Identify records","Establish relationship","Delete records","Update records"],correctIndex:1},
+      {text:"Command removes table?",options:["DROP","DELETE","REMOVE","TRUNCATE"],correctIndex:0},
+      {text:"ACID properties include?",options:["Atomicity","Consistency","Isolation","All of the above"],correctIndex:3},
+      {text:"Which key can have NULL?",options:["Foreign key","Primary key","Both","None"],correctIndex:0},
+      {text:"DDL stands for?",options:["Data Definition Language","Data Description Language","Database Definition Language","None"],correctIndex:0},
+      {text:"DML stands for?",options:["Data Manipulation Language","Database Management Language","Data Main Language","None"],correctIndex:0},
+      {text:"Which function returns current date?",options:["NOW()","DATE()","SYSDATE()","TODAY()"],correctIndex:0},
+      {text:"Which constraint prevents NULL?",options:["NOT NULL","UNIQUE","CHECK","DEFAULT"],correctIndex:0},
+      {text:"Which clause filters records?",options:["WHERE","HAVING","ORDER BY","GROUP BY"],correctIndex:0},
+      {text:"Which clause sorts data?",options:["ORDER BY","SORT BY","GROUP BY","ARRANGE BY"],correctIndex:0}
+    ],
+    moderate: [
+      {text:"Which index for primary key?",options:["Clustered index","Non-clustered index","Unique index","Bitmap index"],correctIndex:0},
+      {text:"JOIN combines?",options:["Tables","Columns","Rows","Queries"],correctIndex:0},
+      {text:"Which command changes table structure?",options:["ALTER","UPDATE","MODIFY","CHANGE"],correctIndex:0},
+      {text:"Which operator matches pattern?",options:["LIKE","MATCH","COMPARE","REGEX"],correctIndex:0},
+      {text:"Which key ensures entity integrity?",options:["Primary Key","Foreign Key","Candidate Key","Super Key"],correctIndex:0},
+      {text:"Which command removes duplicates?",options:["DISTINCT","UNIQUE","REMOVE","CLEAN"],correctIndex:0},
+      {text:"Which clause groups records?",options:["GROUP BY","ORDER BY","WHERE","SELECT"],correctIndex:0},
+      {text:"Which function counts rows?",options:["COUNT()","SUM()","TOTAL()","ROWS()"],correctIndex:0},
+      {text:"Which operator combines conditions?",options:["AND","OR","NOT","XOR"],correctIndex:0},
+      {text:"Which key uniquely identifies row?",options:["Primary Key","Foreign Key","Unique Key","Candidate Key"],correctIndex:0}
+    ],
+    hard: [
+      {text:"Normalization helps to?",options:["Reduce redundancy","Improve performance","Both","None"],correctIndex:2},
+      {text:"JOIN clause used for?",options:["Combining tables","Deleting tables","Updating tables","Creating tables"],correctIndex:0},
+      {text:"Which normal form removes transitive dependency?",options:["3NF","2NF","BCNF","1NF"],correctIndex:0},
+      {text:"Which constraint checks condition?",options:["CHECK","DEFAULT","UNIQUE","PRIMARY"],correctIndex:0},
+      {text:"Which command deletes all rows?",options:["TRUNCATE","DELETE","DROP","REMOVE"],correctIndex:0},
+      {text:"Which operator selects NULL values?",options:["IS NULL","= NULL","EQUALS NULL","None"],correctIndex:0},
+      {text:"Which function finds average?",options:["AVG()","SUM()","MEAN()","AVERAGE()"],correctIndex:0},
+      {text:"Which SQL clause limits output?",options:["LIMIT","TOP","ROWNUM","All"],correctIndex:3},
+      {text:"Which type of key can be composite?",options:["Primary Key","Foreign Key","Both","None"],correctIndex:2},
+      {text:"Which command backs up database?",options:["BACKUP","SAVE","EXPORT","DUMP"],correctIndex:0}
+    ],
+    high: [
+      {text:"Which key ensures entity integrity?",options:["Primary Key","Foreign Key","Candidate Key","Super Key"],correctIndex:0},
+      {text:"Which command modifies table structure?",options:["ALTER","UPDATE","MODIFY","CHANGE"],correctIndex:0},
+      {text:"BCNF eliminates?",options:["Anomalies","Redundancy","Partial dependencies","All"],correctIndex:3},
+      {text:"Which operator performs set difference?",options:["MINUS","UNION","INTERSECT","JOIN"],correctIndex:0},
+      {text:"Which command commits transaction?",options:["COMMIT","SAVE","EXECUTE","END"],correctIndex:0},
+      {text:"Which keyword undoes transaction?",options:["ROLLBACK","UNDO","REVERT","CANCEL"],correctIndex:0},
+      {text:"Which SQL standard version introduced triggers?",options:["SQL:1999","SQL:2003","SQL:2011","SQL:2016"],correctIndex:0},
+      {text:"Which command grants permission?",options:["GRANT","ALLOW","PERMIT","ACCESS"],correctIndex:0},
+      {text:"Which command revokes permission?",options:["REVOKE","DENY","REMOVE","LOCK"],correctIndex:0},
+      {text:"Which isolation level prevents phantom reads?",options:["Serializable","Read Committed","Repeatable Read","Read Uncommitted"],correctIndex:0}
+    ],
+    advanced: [
+      {text:"ACID properties ensure?",options:["Transaction reliability","Data corruption","Query optimization","Backup"],correctIndex:0},
+      {text:"Indexing improves?",options:["Query speed","Memory usage","Data redundancy","All"],correctIndex:0},
+      {text:"Trigger executes on?",options:["Event","Loop","Transaction","Error"],correctIndex:0},
+      {text:"Stored procedures improve?",options:["Performance","Security","Both","None"],correctIndex:2},
+      {text:"Views provide?",options:["Security","Data abstraction","Both","None"],correctIndex:2},
+      {text:"Which clause filters after grouping?",options:["HAVING","WHERE","FILTER","GROUP"],correctIndex:0},
+      {text:"Which command locks tables?",options:["LOCK","GRANT","BLOCK","FREEZE"],correctIndex:0},
+      {text:"Which isolation level avoids all anomalies?",options:["Serializable","Repeatable Read","Read Committed","None"],correctIndex:0},
+      {text:"Which command analyzes table statistics?",options:["ANALYZE","INSPECT","SCAN","CHECK"],correctIndex:0},
+      {text:"Which command checks database consistency?",options:["CHECK","VERIFY","VALIDATE","ANALYZE"],correctIndex:0}
+    ]
+  }
+};
+
+    // Order used for auto-progression across levels and courses
+    const levelOrder = ['basic', 'easy', 'moderate', 'hard', 'high', 'advanced'];
+    const levelLabels = {
+      basic: 'Basic', easy: 'Easy', moderate: 'Moderate',
+      hard: 'Hard', high: 'High Level', advanced: 'Advanced'
+    };
+    const subjectOrder = ['python', 'java', 'dbms'];
+    const subjectLabels = { python: 'Python', java: 'Java', dbms: 'DBMS' };
+
+    let selectedMainQuiz = null;
+    let currentLevel = null;
+    let quizData = [];
+    let currentQuestion = 0;
+    let userAnswers = [];
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 600;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const feedbackEl = document.getElementById("feedback");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultEl = document.getElementById("result");
+    const timerEl = document.getElementById("timer");
+    const reattemptBtn = document.getElementById("reattemptBtn");
+    const nextLevelBtn = document.getElementById("nextLevelBtn");
+
+    function selectMainQuiz(subject) {
+      selectedMainQuiz = subject;
+      document.getElementById("quiz-selection").style.display = "none";
+      document.getElementById("level-selection").style.display = "block";
+    }
+
+    function startQuiz(level) {
+      currentLevel = level;
+      quizData = quizzes[selectedMainQuiz][level];
+      currentQuestion = 0;
+      userAnswers = new Array(quizData.length).fill(null);
+      document.getElementById("level-selection").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      document.getElementById("question-container").style.display = "block";
+      resultEl.style.display = "none";
+      reattemptBtn.style.display = "none";
+      nextLevelBtn.style.display = "none";
+      startTimer();
+      showQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 600;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) { clearInterval(timerInterval); submitQuiz(); }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+      const seconds = String(timeLeft % 60).padStart(2, "0");
+      timerEl.textContent = `Time Left: ${minutes}:${seconds}`;
+    }
+
+    function showQuestion() {
+      const q = quizData[currentQuestion];
+      questionEl.textContent = `Q${currentQuestion + 1}. ${q.text}`;
+      optionsEl.innerHTML = "";
+      q.options.forEach((option, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(i);
+        optionsEl.appendChild(btn);
+      });
+      highlightSelected();
+      prevBtn.style.display = currentQuestion === 0 ? "none" : "inline-block";
+      nextBtn.style.display = currentQuestion === quizData.length - 1 ? "none" : "inline-block";
+      submitBtn.style.display = currentQuestion === quizData.length - 1 ? "inline-block" : "none";
+    }
+
+    // Answer-change feature: buttons stay clickable so the learner can
+    // pick a different option any time before moving on; each click
+    // updates the stored answer and refreshes the feedback/highlighting.
+    function selectAnswer(i) {
+      userAnswers[currentQuestion] = i;
+      highlightSelected();
+    }
+
+    // Shows which option is selected only — no right/wrong reveal here.
+    // Correct/incorrect is only shown after the whole quiz is submitted.
+    function highlightSelected() {
+      const buttons = optionsEl.querySelectorAll("button");
+      buttons.forEach((b, index) => {
+        b.style.backgroundColor = "";
+        b.style.border = "1px solid #ccc";
+        if (index === userAnswers[currentQuestion]) {
+          b.style.backgroundColor = "#cfe3ff";
+          b.style.border = "2px solid #2196f3";
+        }
+      });
+      feedbackEl.textContent = userAnswers[currentQuestion] !== null ? "Answer selected" : "";
+      feedbackEl.style.color = "#555";
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentQuestion > 0) { currentQuestion--; showQuestion(); }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentQuestion < quizData.length - 1) { currentQuestion++; showQuestion(); }
+    });
+
+    submitBtn.addEventListener("click", submitQuiz);
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      score = userAnswers.reduce((t, a, i) => t + (a === quizData[i].correctIndex ? 1 : 0), 0);
+      document.getElementById("question-container").style.display = "none";
+      resultEl.style.display = "block";
+      reattemptBtn.style.display = "inline-block";
+
+      let star = "", color = "";
+      if (score >= 8) { star = "🥇 Gold Star!"; color = "#FFD700"; }
+      else if (score >= 5) { star = "🥈 Silver Star!"; color = "#C0C0C0"; }
+      else if (score >= 1) { star = "🥉 Bronze Star!"; color = "#CD7F32"; }
+      else { star = "❌ No Star — Try Again!"; color = "#ff4444"; }
+
+      const levelName = levelLabels[currentLevel];
+      const subjectName = subjectLabels[selectedMainQuiz];
+      const next = getNextLevelInfo();
+      const wrongCount = quizData.length - score;
+
+      resultEl.innerHTML = `🎉 ${subjectName} — ${levelName} complete!<br>
+        You scored <strong>${score}</strong> out of <strong>${quizData.length}</strong>
+        (${wrongCount} wrong)!<br><br>
+        <span style="font-size:2em;color:${color};">${star}</span>
+        ${buildReviewHTML()}`;
+
+      if (next) {
+        nextLevelBtn.textContent = next.sameSubject
+          ? `Next Level: ${levelLabels[next.level]} ➡️`
+          : `Start ${subjectLabels[next.subject]} (${levelLabels[next.level]}) ➡️`;
+        nextLevelBtn.style.display = "inline-block";
+      } else {
+        nextLevelBtn.style.display = "none";
+        resultEl.innerHTML += `<br><br>🏆 You've completed every course and level. Amazing work!`;
+      }
+    }
+
+    // Builds the full review shown only after the quiz is submitted:
+    // every question, the learner's answer, and whether it was right —
+    // with the correct answer shown for anything they got wrong.
+    function buildReviewHTML() {
+      let html = '<div style="text-align:left; margin-top:20px;">' +
+        '<h3 style="text-align:center; margin-bottom:10px;">Answer Review</h3>';
+      quizData.forEach((q, i) => {
+        const userIdx = userAnswers[i];
+        const isCorrect = userIdx === q.correctIndex;
+        const userAnsText = userIdx !== null ? q.options[userIdx] : "Not answered";
+        const bg = isCorrect ? "#e8f5e9" : "#ffebee";
+        const mark = isCorrect ? "✅" : "❌";
+        html += `<div style="background:${bg}; border-radius:6px; padding:10px; margin-bottom:8px;">
+          <strong>Q${i + 1}.</strong> ${q.text}<br>
+          Your answer: <span style="color:${isCorrect ? '#2e7d32' : '#c62828'};">${userAnsText}</span> ${mark}`;
+        if (!isCorrect) {
+          html += `<br>Correct answer: <span style="color:#2e7d32;">${q.options[q.correctIndex]}</span>`;
+        }
+        html += `</div>`;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    // Figures out what "next" means: next level in the same subject,
+    // or the first level of the next subject, or nothing if it's all done.
+    function getNextLevelInfo() {
+      const levelIndex = levelOrder.indexOf(currentLevel);
+      if (levelIndex < levelOrder.length - 1) {
+        return { subject: selectedMainQuiz, level: levelOrder[levelIndex + 1], sameSubject: true };
+      }
+      const subjectIndex = subjectOrder.indexOf(selectedMainQuiz);
+      if (subjectIndex < subjectOrder.length - 1) {
+        return { subject: subjectOrder[subjectIndex + 1], level: levelOrder[0], sameSubject: false };
+      }
+      return null;
+    }
+
+    // Next Level button handler: moves the learner straight into the
+    // next level (or next course) without going back through the menus.
+    function goToNextLevel() {
+      const next = getNextLevelInfo();
+      if (!next) return;
+      selectedMainQuiz = next.subject;
+      startQuiz(next.level);
+    }
+
+    function reattemptQuiz() {
+      currentQuestion = 0;
+      userAnswers.fill(null);
+      document.getElementById("question-container").style.display = "block";
+      resultEl.style.display = "none";
+      reattemptBtn.style.display = "none";
+      nextLevelBtn.style.display = "none";
+      startTimer();
+      showQuestion();
+    }
+  </script>
+</body>
+</html>
